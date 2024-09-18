@@ -1,0 +1,16 @@
+{
+    "name": "GuestNumberGame",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f940e7a11e1cfd148beb466617b48d5e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
