@@ -14,7 +14,7 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
 
         public int Predict()
         {
-            return (GuessRange.Min + GuessRange.Max) / 2;
+            return InternalGuess(GuessRange);
         }
         
         public int Predict(Guess guess)
@@ -25,15 +25,28 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
             if (guess.GuessResult == GuessResult.NeedLess)
             {
                 newMax = Math.Min(newMax, guess.Number);
+                if (newMax == GuessRange.Max)
+                {
+                    newMax--;
+                }
             }
 
             if (guess.GuessResult == GuessResult.NeedMore)
             {
                 newMin = Math.Max(newMin, guess.Number);
+                if (newMin == GuessRange.Min)
+                {
+                    newMin++;
+                }
             }
             
             GuessRange = new Range(newMin, newMax);
-            return (newMin + newMax) / 2;
+            return InternalGuess(GuessRange);
+        }
+
+        private int InternalGuess(Range range)
+        {
+            return (int)Math.Round(((double)range.Min + (double)range.Max) / 2);
         }
     }
 }
