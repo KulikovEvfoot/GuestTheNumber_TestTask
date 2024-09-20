@@ -4,13 +4,13 @@ namespace GuestNumberGame.Runtime.Match
 {
     public interface IMatchModel
     {
-        IEventProducer<IMatchStateChangeObserver> MatchStateChangeEvent { get; }
-        IEventProducer<IStepTranslatedObserver> StepTranslatedEvent { get; }
-        IEventProducer<ICycleChangeObserver> CycleChangeEvent { get; }
+        IEventProducer<IMatchRestartObserver> MatchRestartEvent { get; }
+        IEventProducer<IStepTranslateObserver> StepTranslateEvent { get; }
+        IEventProducer<IMatchFinishObserver> MatchFinishEvent { get; }
         
         IMatchReadOnlyData MatchData { get; }
-        
-        void Update();
-        void Reset();
+
+        void Guess(int number);
+        void Restart();
     }
 }

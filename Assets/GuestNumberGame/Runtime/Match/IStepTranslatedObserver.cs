@@ -1,9 +1,9 @@
-using GuestNumberGame.Runtime.Player;
+using GuestNumberGame.Runtime.Match.Player;
 
 namespace GuestNumberGame.Runtime.Match
 {
-    public interface IStepTranslatedObserver
+    public interface IStepTranslateObserver
     {
-        void NotifyOnStepTranslated(IPlayer from, IPlayer to);
+        void NotifyOnTranslateStep(IReadOnlyPlayerData from, IReadOnlyPlayerData to);
     }
 }

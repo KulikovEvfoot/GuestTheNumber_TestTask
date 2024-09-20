@@ -1,7 +1,7 @@
 namespace GuestNumberGame.Runtime.Match
 {
-    public interface IMatchStateChangeObserver
+    public interface IMatchRestartObserver
     {
-        void NotifyOnMatchStateChange(MatchState newState);
+        void NotifyOnMatchRestartChange();
     }
 }

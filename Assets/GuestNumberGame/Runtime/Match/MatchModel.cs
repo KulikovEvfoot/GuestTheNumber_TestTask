@@ -1,82 +1,78 @@
-﻿using Common;
-using GuestNumberGame.Runtime.Player;
+﻿using System;
+using Common;
 
 namespace GuestNumberGame.Runtime.Match
 {
-    public class MatchModel : IMatchModel
+    public class MatchModel : IMatchModel, IDisposable
     {
-        private readonly EventProducer<IMatchStateChangeObserver> m_MatchStateChangeEventProducer = new();
-        private readonly EventProducer<IStepTranslatedObserver> m_StepTranslatedEventProducer = new();
-        private readonly EventProducer<ICycleChangeObserver> m_CycleChangeEventProducer = new();
+        private readonly EventProducer<IMatchRestartObserver> m_MatchRestartEventProducer = new();
+        private readonly EventProducer<IStepTranslateObserver> m_StepTranslateEventProducer = new();
+        private readonly EventProducer<IMatchFinishObserver> m_MatchFinishEventProducer = new();
         
-        private readonly MatchData m_MatchData;
+        private readonly IMatchData m_MatchData;
         
-        public IEventProducer<IMatchStateChangeObserver> MatchStateChangeEvent => m_MatchStateChangeEventProducer;
-        public IEventProducer<IStepTranslatedObserver> StepTranslatedEvent => m_StepTranslatedEventProducer;
-        public IEventProducer<ICycleChangeObserver> CycleChangeEvent => m_CycleChangeEventProducer;
-        
+        public IEventProducer<IMatchRestartObserver> MatchRestartEvent => m_MatchRestartEventProducer;
+        public IEventProducer<IStepTranslateObserver> StepTranslateEvent => m_StepTranslateEventProducer;
+        public IEventProducer<IMatchFinishObserver> MatchFinishEvent => m_MatchFinishEventProducer;
+
         public IMatchReadOnlyData MatchData => m_MatchData;
 
-        public MatchModel(params IPlayer[] players)
+        public MatchModel(IMatchData matchData)
         {
-            m_MatchData = new MatchData();
-            m_MatchData.SetPlayers(players);
+            m_MatchData = matchData;
         }
         
-        public void Update()
+        public void Guess(int number)
         {
-            var currentPlayer = m_MatchData.CurrentPlayer;
-            if (m_MatchData.CurrentPlayer.StepData.Step != Step.Completed)
-            {
-                return;
-            }
+            var guesser = m_MatchData.CurrentPlayer;
+            
+            m_MatchData.MatchStats.TakeGuess(
+                new Guess(guesser.Name, m_MatchData.Cycle, number, GetGuessResult(number)));
 
-            //подумать как сделать ивент
-            // лучше по очереди передавать ход, на случай финиша
-            // PassStep(currentPlayer);
-
-            if (m_MatchData.IsMatchFinished())
+            if (number == m_MatchData.NumberToGuess)
             {
-                m_MatchStateChangeEventProducer.NotifyAll(
-                    obs => obs.NotifyOnMatchStateChange(MatchState.Finished));
+                m_MatchFinishEventProducer.NotifyAll(
+                    obs => obs.NotifyOnMatchFinished(guesser, m_MatchData.NumberToGuess));
                 return;
             }
             
-            if (m_MatchData.CurrentPlayerStepIndex == m_MatchData.PlayersCount - 1)
-            {
-                NextCycle();
-            }
-
-            StartStep(m_MatchData.CurrentPlayer);
-        }
-
-        public void Reset()
-        {
-            m_MatchData.Reset();
-            m_MatchStateChangeEventProducer.NotifyAll(
-                obs => obs.NotifyOnMatchStateChange(MatchState.Reset));
-        }
-
-        private void StartStep(IPlayer currentPlayer)
-        {
-            currentPlayer.TakeLead();
-        }
-
-        private void NextCycle()
-        {
-            m_MatchData.IncCycle();
+            guesser.SetStepStatus(false);
             m_MatchData.ToNextStep();
+            var nextPlayer = m_MatchData.CurrentPlayer;
+            nextPlayer.SetStepStatus(true);
             
-            m_CycleChangeEventProducer.NotifyAll(
-                obs => obs.NotifyOnCycleChanged(m_MatchData.Cycle));
+            m_StepTranslateEventProducer
+                .NotifyAll(obs => obs.NotifyOnTranslateStep(guesser, nextPlayer));
         }
 
-        private void PassStep(IPlayer from, IPlayer to)
+        public void Restart()
         {
-            to.TakeDownLead();
-            
-            m_StepTranslatedEventProducer.NotifyAll(
-                obs => obs.NotifyOnStepTranslated(from, to));
+            m_MatchData.Restart();
+            m_MatchRestartEventProducer.NotifyAll(
+                obs => obs.NotifyOnMatchRestartChange());
+        }
+
+        private GuessResult GetGuessResult(int guess)
+        {
+            var numberToGuess = m_MatchData.NumberToGuess;
+            if (guess > numberToGuess)
+            {
+                return GuessResult.NeedLess;
+            }
+
+            if (guess < numberToGuess)
+            {
+                return GuessResult.NeedMore;
+            }
+
+            return GuessResult.Guessed;
+        }
+
+        public void Dispose()
+        {
+            m_MatchRestartEventProducer?.Dispose();
+            m_StepTranslateEventProducer?.Dispose();
+            m_MatchFinishEventProducer?.Dispose();
         }
     }
 }

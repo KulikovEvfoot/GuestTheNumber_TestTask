@@ -1,15 +1,14 @@
-using System;
-using GuestNumberGame.Runtime.Player;
+using GuestNumberGame.Runtime.Match.Player;
 
 namespace GuestNumberGame.Runtime.Match
 {
     public interface IMatchData : IMatchReadOnlyData
     {
-        void IncCycle();
-        bool IsMatchFinished();
+        IPlayer CurrentPlayer { get; } 
+        IPlayer[] Players { get; } 
+        MatchStats MatchStats { get; }
+        
         void ToNextStep();
-        void SetFinishCondition(Func<bool> condition);
-        void SetPlayers(params IPlayer[] players);
-        void Reset();
+        void Restart();
     }
 }
