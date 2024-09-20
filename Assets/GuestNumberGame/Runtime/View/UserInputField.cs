@@ -20,7 +20,7 @@ namespace GuestNumberGame.Runtime.View
         private readonly LinkedList<char> m_Input = new();
         private List<int> m_Indexes = new();
         private Action<string> m_OnEnterClick;
-        private bool m_IsPositive;
+        private bool m_IsPositive = true;
         
         public void Init(Action<string> onEnterClick)
         {
@@ -97,6 +97,11 @@ namespace GuestNumberGame.Runtime.View
             }
             else
             {
+                if (m_Input.Count == 0)
+                {
+                    return;
+                }
+                
                 m_Input.RemoveFirst();
             }
             
@@ -107,6 +112,7 @@ namespace GuestNumberGame.Runtime.View
 
         private void OnEnterClick()
         {
+            m_IsPositive = true;
             m_OnEnterClick?.Invoke(m_InputedText.text);
         }
 

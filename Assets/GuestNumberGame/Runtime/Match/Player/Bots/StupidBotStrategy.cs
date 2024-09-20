@@ -1,12 +1,35 @@
-using UnityEngine;
+using Range = Common.Range;
 
 namespace GuestNumberGame.Runtime.Match.Player.Bots
 {
-    public class StupidBotStrategy : IBotGuessStrategy
+    public class EasyBotStrategy : IBotGuessStrategy, IMatchNewGuessObserver
     {
+        private readonly IReadOnlyMatchStats m_ReadOnlyMatchStats;
+
+        private readonly NumberPredictor m_NumberPredictor;
+        
+        public EasyBotStrategy(Range guessRange, IReadOnlyMatchStats readOnlyMatchStats)
+        {
+            m_ReadOnlyMatchStats = readOnlyMatchStats;
+            m_NumberPredictor = new NumberPredictor(guessRange);
+            m_NumberPredictor.Predict();
+            
+            m_ReadOnlyMatchStats.NewGuessEvent.Attach(this);
+        }
+
         public int Guess()
         {
-            return Random.Range(int.MinValue, int.MaxValue);
+            return m_NumberPredictor.GuessRange.GetRandom();
+        }
+
+        public void NotifyOnNewGuess(Guess guess)
+        {
+            m_NumberPredictor.Predict(guess);
+        }
+
+        public void Dispose()
+        {
+            m_ReadOnlyMatchStats.NewGuessEvent.Detach(this);
         }
     }
 }

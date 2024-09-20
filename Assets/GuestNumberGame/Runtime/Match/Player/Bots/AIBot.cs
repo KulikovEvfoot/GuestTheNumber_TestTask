@@ -2,7 +2,7 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
 {
     public class AIBot : BasePlayer
     {
-        private IBotGuessStrategy m_BotGuessStrategy = new StupidBotStrategy();
+        private IBotGuessStrategy m_BotGuessStrategy = new StubBotStrategy();
 
         public AIBot(string name) : base(name)
         {

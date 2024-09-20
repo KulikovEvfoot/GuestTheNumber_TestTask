@@ -21,7 +21,7 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
             switch (botComplexity)
             {
                 case BotComplexity.Easy:
-                    bot.SetGuessStrategy(new StupidBotStrategy());
+                    bot.SetGuessStrategy(new EasyBotStrategy(m_GuessRange, m_MatchStats));
                     break;
                 case BotComplexity.Normal:
                     bot.SetGuessStrategy(new MediumBotStrategy(m_GuessRange, m_MatchStats));
