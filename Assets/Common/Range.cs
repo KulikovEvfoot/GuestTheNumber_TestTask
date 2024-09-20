@@ -18,7 +18,7 @@
         
         public int GetRandom()
         {
-            return UnityEngine.Random.Range(Min, Max);
+            return UnityEngine.Random.Range(Min, Max + 1);
         }
         
         public bool Contains(float number)
