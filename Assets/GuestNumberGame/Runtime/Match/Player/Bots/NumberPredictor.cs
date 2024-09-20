@@ -24,8 +24,12 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
             
             if (guess.GuessResult == GuessResult.NeedLess)
             {
-                newMax = Math.Min(newMax, guess.Number);
-                if (newMax == GuessRange.Max)
+                if (guess.Number < newMax)
+                {
+                    newMax = guess.Number;
+                }
+                
+                if (newMax == guess.Number)
                 {
                     newMax--;
                 }
@@ -33,8 +37,13 @@ namespace GuestNumberGame.Runtime.Match.Player.Bots
 
             if (guess.GuessResult == GuessResult.NeedMore)
             {
+                if (guess.Number > newMin)
+                {
+                    newMin = guess.Number;
+                }
+                
                 newMin = Math.Max(newMin, guess.Number);
-                if (newMin == GuessRange.Min)
+                if (newMin == guess.Number)
                 {
                     newMin++;
                 }
